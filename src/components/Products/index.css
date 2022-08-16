@@ -1,0 +1,17 @@
+td:last-of-type {
+    text-align: center;
+}
+
+td:last-of-type span {
+    margin: 0 5px
+}
+
+.modal  {
+    display: block;
+    pointer-events: none;
+}
+
+.show {
+    opacity: 1;
+    pointer-events: visible;
+}

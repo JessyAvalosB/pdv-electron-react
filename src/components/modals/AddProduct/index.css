@@ -1,0 +1,9 @@
+.manage-stock {
+    transition: all .25s ease;
+}
+
+.manage-stock:not(.show) {
+    height: 0px;
+    margin: 0;
+    pointer-events: none;
+}
