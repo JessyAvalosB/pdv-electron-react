@@ -1,4 +1,6 @@
 import React from 'react';
+import Button from '../../UI/Button';
+import { InputText } from '../../UI/Inputs';
 
 import './index.css';
 
@@ -34,26 +36,17 @@ const AddProduct = () => {
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">New Product</h5>
-                        <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close">
+                        <Button type="button" btnClass="close" onClick={handleCloseModal}>
                             <span aria-hidden="true"></span>
-                        </button>
+                        </Button>
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleOnSubmit} noValidate>
                             <div className="col-sm-12">
-                                <div className="form-group">
-                                    <input id="name" name="name" type="text" placeholder="Product's name" className="form-control" required />
-                                    <div className="invalid-feedback">A product name is necesary.</div>
-                                </div>
-                                <div className="form-group">
-                                    <input id="price" name="price" type="text" placeholder="Product's price" className="form-control" required
-                                        onkeypress="return onlyNumber(event)" />
-                                    <div className="invalid-feedback">A product price is necesary</div>
-                                </div>
-                                <div className="form-group">
-                                    <input id="code" name="code" type="text" placeholder="Product's code" className="form-control" required />
-                                    <div className="invalid-feedback">A product code is necesary.</div>
-                                </div>
+                                <InputText name='name' placeholder="Product Name" required={true} />
+                                <InputText name='price' placeholder="Product Price" required={true} />
+                                <InputText name='code' placeholder="Product Code" required={true} />
+                                {/* TODO: Work more on InputNumber Component */}
                                 <div className="form-group manage-stock fade">
                                     <input id="stock" name="stock" type="number" min="0" placeholder="Product's stock" className="form-control" required />
                                     <div className="invalid-feedback">A product stock is necesary.</div>
@@ -65,6 +58,7 @@ const AddProduct = () => {
                                     <input id="max_stock" name="max_stock" type="number" min="1" placeholder="Product's max stock" className="form-control" />
                                 </div>
                             </div>
+                            {/* TODO: Create InputCheckbox Component */}
                             <div className="form-check">
                                 <input id="manage_stock" name="manage_stock" type="checkbox" className="form-check-input"
                                     onChange={handleChangeStockManage} />
@@ -73,8 +67,8 @@ const AddProduct = () => {
                         </form>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={handleClickSubmit}>Save</button>
-                        <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Close</button>
+                        <Button type="button" btnClass="primary" onClick={handleClickSubmit}>Save</Button>
+                        <Button type="button" btnClass="secondary" onClick={handleCloseModal}>Close</Button>
                     </div>
                 </div>
             </div>
