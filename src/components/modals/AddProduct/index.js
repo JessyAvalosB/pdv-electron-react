@@ -1,78 +1,221 @@
-import React from 'react';
-import Button from '../../UI/Button';
-import { InputText } from '../../UI/Inputs';
+import React, { useEffect, useRef, useState } from 'react';
+import { createProduct } from '../../../axios requests/products';
+import { detachOnScan, initOnScan } from '../../../onScan';
+
+import { validate } from '../../../utils';
+import CheckBox from '../../UI/CheckBox';
+import Input from '../../UI/Input';
+import RadioGroup from '../../UI/RadioGroup';
+import Modal from '../Modal';
 
 import './index.css';
 
-const AddProduct = () => {
+const AddProduct = ({ setAlerts }) => {
+    const [product, setProduct] = useState({
+        name: '',
+        price: '0',
+        code: '',
+        stock: '0',
+        min_stock: '0',
+        max_stock: '0',
+        manage_stock: false,
+        unity: '1',
+    });
+
+    const inputCode = useRef();
+
+    useEffect(() => {
+        initOnScan(handleScanned);
+
+        return () => (detachOnScan());
+    }, []);
+
+    useEffect(() => {
+        if (inputCode) {
+            inputCode.current.value = product.code;
+        }
+    }, [product.code]);
+
+    const handleScanned = (code) => {
+        setProduct((prevSatate) => ({
+            ...prevSatate,
+            code,
+        }));
+    };
+
+    const toggleShowManageStock = (flag) => {
+        const inputs = document.querySelectorAll('.manage-stock');
+        inputs.forEach(input => {
+            input.classList.toggle('show');
+            input.disabled = flag;
+        });
+    };
 
     const handleCloseModal = () => {
         const modal = document.querySelector('.modal');
         modal.classList.remove('show');
+        setProduct({
+            name: '',
+            price: '',
+            code: '',
+            stock: 0,
+            min_stock: 0,
+            max_stock: 0,
+            manage_stock: false,
+            unity: '1'
+        });
+        const inputs = document.querySelectorAll('.manage-stock');
+        inputs.forEach(input => {
+            input.classList.toggle('show', false);
+            input.disabled = false;
+        });
     };
 
     const handleChangeStockManage = (event) => {
         const stockManage = event.target.checked;
-        const inputs = document.querySelectorAll('.manage-stock');
-        inputs.forEach(input => {
-            input.classList.toggle('show');
-            input.disabled = stockManage;
-        });
+        toggleShowManageStock(stockManage);
+        setProduct(prevState => ({
+            ...prevState,
+            manage_stock: stockManage
+        }));
     };
 
-    const handleClickSubmit = () => {
-        const form = document.querySelector('form');
-        form.submit();
+    const handleInputChange = (input) => {
+        const { name } = input.target;
+        let { value } = input.target;
+
+        if (name === 'price' ||
+            name === 'stock' ||
+            name === 'min_stock' ||
+            name === 'max_stock') {
+            value = parseFloat(value).toFixed(2);
+        }
+
+        setProduct((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleClickSubmit = async () => {
+        if (validate.createProduct(product, setAlerts)) {
+            const res = await createProduct(product);
+            console.log(res);
+        }
     }
 
-    const handleOnSubmit = (event) => {
-        event.preventDefault();
-        console.log('hola')
-    };
+    const buttons = [
+        {
+            id: 'radioButtonPiece',
+            name: 'unity',
+            value: 1,
+            checked: product.unity === '1',
+            label: 'Piece',
+            onChange: handleInputChange
+        },
+        {
+            id: 'radioButtonBulk',
+            name: 'unity',
+            value: 2,
+            checked: product.unity === '2',
+            label: 'Bulk',
+            onChange: handleInputChange
+        },
+    ];
 
     return (
-        <div className="modal fade" id="add-product-modal">
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">New Product</h5>
-                        <Button type="button" btnClass="close" onClick={handleCloseModal}>
-                            <span aria-hidden="true"></span>
-                        </Button>
+        <Modal
+            headerText='New Product'
+            handleCloseModal={handleCloseModal}
+            toogleCloseModal={true}
+            toggleShowFooter={true}
+            confirmText='Submit'
+            closeText='Cancel'
+            handleClickConfirm={handleClickSubmit}
+            toggleCloseModal={true}>
+            <form noValidate>
+                <div className="col-sm-12">
+                    <Input
+                        id='code'
+                        type='text'
+                        name='code'
+                        maxLength={12}
+                        ref={inputCode}
+                        required={true}
+                        label='Product Code'
+                        value={product.code}
+                        onChange={handleInputChange} />
+                </div>
+                <div className='row'>
+                    <div className="col-sm-6">
+                        <Input
+                            type='text'
+                            name='name'
+                            required={true}
+                            label='Product Name'
+                            value={product.name}
+                            onChange={handleInputChange} />
                     </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleOnSubmit} noValidate>
-                            <div className="col-sm-12">
-                                <InputText name='name' placeholder="Product Name" required={true} />
-                                <InputText name='price' placeholder="Product Price" required={true} />
-                                <InputText name='code' placeholder="Product Code" required={true} />
-                                {/* TODO: Work more on InputNumber Component */}
-                                <div className="form-group manage-stock fade">
-                                    <input id="stock" name="stock" type="number" min="0" placeholder="Product's stock" className="form-control" required />
-                                    <div className="invalid-feedback">A product stock is necesary.</div>
-                                </div>
-                                <div className="form-group manage-stock fade">
-                                    <input id="min_stock" name="min_stock" type="number" min="1" placeholder="Product's min stock" className="form-control" />
-                                </div>
-                                <div className="form-group manage-stock fade">
-                                    <input id="max_stock" name="max_stock" type="number" min="1" placeholder="Product's max stock" className="form-control" />
-                                </div>
-                            </div>
-                            {/* TODO: Create InputCheckbox Component */}
-                            <div className="form-check">
-                                <input id="manage_stock" name="manage_stock" type="checkbox" className="form-check-input"
-                                    onChange={handleChangeStockManage} />
-                                <label htmlFor="manage_stock" className="form-check-label">Manage product stock?</label>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="modal-footer">
-                        <Button type="button" btnClass="primary" onClick={handleClickSubmit}>Save</Button>
-                        <Button type="button" btnClass="secondary" onClick={handleCloseModal}>Close</Button>
+                    <div className="col-sm-6">
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='price'
+                            type='number'
+                            required={true}
+                            value={product.price}
+                            label='Product Price ($)'
+                            onChange={handleInputChange} />
                     </div>
                 </div>
-            </div>
-        </div>
+                <div className='row'>
+                    <div className='col-sm-6'>
+                        <RadioGroup legend='Unity' buttons={buttons} groupClass='manage-stock fade' />
+                    </div>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='stock'
+                            type='number'
+                            label='Stock'
+                            value={product.stock}
+                            groupClass='manage-stock fade'
+                            onChange={handleInputChange} />
+                    </div>
+                </div>
+                <div className='row'>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='min_stock'
+                            type='number'
+                            label='Min Stock'
+                            value={product.min_stock}
+                            groupClass='manage-stock fade'
+                            onChange={handleInputChange} />
+                    </div>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='max_stock'
+                            type='number'
+                            label='Max Stock'
+                            value={product.max_stock}
+                            onChange={handleInputChange}
+                            groupClass='manage-stock fade' />
+                    </div>
+                </div>
+                <CheckBox
+                    id='manage_stock_id'
+                    name='manage_stock'
+                    label='Manage product stock?'
+                    checked={product.manage_stock}
+                    onChange={handleChangeStockManage} />
+            </form>
+        </Modal>
     );
 };
 

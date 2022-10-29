@@ -1,0 +1,14 @@
+.label {
+    margin-bottom: 10px;
+    pointer-events: none;
+    transition: all .3s ease;
+}
+
+.label.show {
+    transform: translate(0px);
+}
+
+.label.hide {
+    color: var(--bs-gray);
+    transform: translate(25px, 47px);
+}
