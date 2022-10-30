@@ -1,25 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import moment from "moment";
 
 import './index.css';
 
 import AddProduct from "../modals/AddProduct";
 import Button from "../UI/Button";
-
-import { getProducts } from "../../axios requests/products.js";
 import AlertContainer from "../Alerts/AlertContainer";
 
+import { getProducts } from "../../axios requests/products.js";
+import { useDispatch, useSelector } from "react-redux";
+import { getProducts as getProductsSelector } from "../../redux/selectors/products";
+import { setProducts } from "../../redux/actions/products";
+import { getAlerts as getAlertsSelectors } from "../../redux/selectors/alerts";
+
 const Products = () => {
-    const [products, setProducts] = useState([]);
-    const [alerts, setAlerts] = useState([]);
+    const alerts = useSelector(getAlertsSelectors)
+    const products = useSelector(getProductsSelector);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         let isSubscribed = true;
         if (isSubscribed) {
-            getProducts(setProducts);
+            setProductsData();
         }
         return () => isSubscribed = false;
     }, []);
+
+    const setProductsData = async () => dispatch(setProducts(await getProducts()));
 
     const handleClickAddProduct = () => {
         const modal = document.querySelector('#add-product-modal');
@@ -70,7 +77,7 @@ const Products = () => {
                     })}
                 </tbody>
             </table>
-            <AddProduct setAlerts={setAlerts} />
+            <AddProduct/>
             <AlertContainer alerts={alerts} />
         </div>
     );

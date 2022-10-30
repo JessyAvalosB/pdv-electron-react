@@ -5,7 +5,7 @@ import './index.css';
 
 const Navigation = () => {
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{ padding: '10px 0', }}>
             <div className="container-fluid">
                 <span className="navbar-brand">Easy Market</span>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">

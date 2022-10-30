@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { createProduct } from '../../../axios requests/products';
+import { useDispatch } from 'react-redux';
+import { createProduct, getProducts } from '../../../axios requests/products';
 import { detachOnScan, initOnScan } from '../../../onScan';
+import { clearAlerts, setAlerts } from '../../../redux/actions/alerts';
+import { setProducts } from '../../../redux/actions/products';
 
 import { validate } from '../../../utils';
+import { alertTypes } from '../../Alerts/constants';
 import CheckBox from '../../UI/CheckBox';
 import Input from '../../UI/Input';
 import RadioGroup from '../../UI/RadioGroup';
@@ -10,7 +14,9 @@ import Modal from '../Modal';
 
 import './index.css';
 
-const AddProduct = ({ setAlerts }) => {
+const AddProduct = () => {
+    const inputCode = useRef();
+    const dispatch = useDispatch();
     const [product, setProduct] = useState({
         name: '',
         price: '0',
@@ -21,8 +27,6 @@ const AddProduct = ({ setAlerts }) => {
         manage_stock: false,
         unity: '1',
     });
-
-    const inputCode = useRef();
 
     useEffect(() => {
         initOnScan(handleScanned);
@@ -69,6 +73,7 @@ const AddProduct = ({ setAlerts }) => {
             input.classList.toggle('show', false);
             input.disabled = false;
         });
+        dispatch(clearAlerts());
     };
 
     const handleChangeStockManage = (event) => {
@@ -98,9 +103,29 @@ const AddProduct = ({ setAlerts }) => {
     };
 
     const handleClickSubmit = async () => {
-        if (validate.createProduct(product, setAlerts)) {
+        const { alerts, flag } = validate.createProduct(product);
+        if (flag) {
             const res = await createProduct(product);
-            console.log(res);
+            switch (res.status) {
+                case 201:
+                    dispatch(setProducts(await getProducts()));
+                    handleCloseModal();
+                    break;
+                case 409:
+                    dispatch(setAlerts([{
+                        typeAlert: alertTypes.danger,
+                        title: 'Error saving product.',
+                        body: 'Verify that the product code has not been previously used.',
+                    }]));
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            dispatch(setAlerts(alerts));
+            setTimeout(() => {
+                dispatch(clearAlerts());
+            }, 5000);
         }
     }
 
