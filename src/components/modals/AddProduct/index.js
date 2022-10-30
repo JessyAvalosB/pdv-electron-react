@@ -1,84 +1,246 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { createProduct, getProducts } from '../../../axios requests/products';
+import { detachOnScan, initOnScan } from '../../../onScan';
+import { clearAlerts, setAlerts } from '../../../redux/actions/alerts';
+import { setProducts } from '../../../redux/actions/products';
+
+import { validate } from '../../../utils';
+import { alertTypes } from '../../Alerts/constants';
+import CheckBox from '../../UI/CheckBox';
+import Input from '../../UI/Input';
+import RadioGroup from '../../UI/RadioGroup';
+import Modal from '../Modal';
 
 import './index.css';
 
 const AddProduct = () => {
+    const inputCode = useRef();
+    const dispatch = useDispatch();
+    const [product, setProduct] = useState({
+        name: '',
+        price: '0',
+        code: '',
+        stock: '0',
+        min_stock: '0',
+        max_stock: '0',
+        manage_stock: false,
+        unity: '1',
+    });
+
+    useEffect(() => {
+        initOnScan(handleScanned);
+
+        return () => (detachOnScan());
+    }, []);
+
+    useEffect(() => {
+        if (inputCode) {
+            inputCode.current.value = product.code;
+        }
+    }, [product.code]);
+
+    const handleScanned = (code) => {
+        setProduct((prevSatate) => ({
+            ...prevSatate,
+            code,
+        }));
+    };
+
+    const toggleShowManageStock = (flag) => {
+        const inputs = document.querySelectorAll('.manage-stock');
+        inputs.forEach(input => {
+            input.classList.toggle('show');
+            input.disabled = flag;
+        });
+    };
 
     const handleCloseModal = () => {
         const modal = document.querySelector('.modal');
         modal.classList.remove('show');
+        setProduct({
+            name: '',
+            price: '',
+            code: '',
+            stock: 0,
+            min_stock: 0,
+            max_stock: 0,
+            manage_stock: false,
+            unity: '1'
+        });
+        const inputs = document.querySelectorAll('.manage-stock');
+        inputs.forEach(input => {
+            input.classList.toggle('show', false);
+            input.disabled = false;
+        });
+        dispatch(clearAlerts());
     };
 
     const handleChangeStockManage = (event) => {
         const stockManage = event.target.checked;
-        const inputs = document.querySelectorAll('.manage-stock');
-        inputs.forEach(input => {
-            input.classList.toggle('show');
-            input.disabled = stockManage;
-        });
+        toggleShowManageStock(stockManage);
+        setProduct(prevState => ({
+            ...prevState,
+            manage_stock: stockManage
+        }));
     };
 
-    const handleClickSubmit = () => {
-        const form = document.querySelector('form');
-        form.submit();
+    const handleInputChange = (input) => {
+        const { name } = input.target;
+        let { value } = input.target;
+
+        if (name === 'price' ||
+            name === 'stock' ||
+            name === 'min_stock' ||
+            name === 'max_stock') {
+            value = parseFloat(value).toFixed(2);
+        }
+
+        setProduct((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleClickSubmit = async () => {
+        const { alerts, flag } = validate.createProduct(product);
+        if (flag) {
+            const res = await createProduct(product);
+            switch (res.status) {
+                case 201:
+                    dispatch(setProducts(await getProducts()));
+                    handleCloseModal();
+                    break;
+                case 409:
+                    dispatch(setAlerts([{
+                        typeAlert: alertTypes.danger,
+                        title: 'Error saving product.',
+                        body: 'Verify that the product code has not been previously used.',
+                    }]));
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            dispatch(setAlerts(alerts));
+            setTimeout(() => {
+                dispatch(clearAlerts());
+            }, 5000);
+        }
     }
 
-    const handleOnSubmit = (event) => {
-        event.preventDefault();
-        console.log('hola')
-    };
+    const buttons = [
+        {
+            id: 'radioButtonPiece',
+            name: 'unity',
+            value: 1,
+            checked: product.unity === '1',
+            label: 'Piece',
+            onChange: handleInputChange
+        },
+        {
+            id: 'radioButtonBulk',
+            name: 'unity',
+            value: 2,
+            checked: product.unity === '2',
+            label: 'Bulk',
+            onChange: handleInputChange
+        },
+    ];
 
     return (
-        <div className="modal fade" id="add-product-modal">
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">New Product</h5>
-                        <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close">
-                            <span aria-hidden="true"></span>
-                        </button>
+        <Modal
+            headerText='New Product'
+            handleCloseModal={handleCloseModal}
+            toogleCloseModal={true}
+            toggleShowFooter={true}
+            confirmText='Submit'
+            closeText='Cancel'
+            handleClickConfirm={handleClickSubmit}
+            toggleCloseModal={true}>
+            <form noValidate>
+                <div className="col-sm-12">
+                    <Input
+                        id='code'
+                        type='text'
+                        name='code'
+                        maxLength={12}
+                        ref={inputCode}
+                        required={true}
+                        label='Product Code'
+                        value={product.code}
+                        onChange={handleInputChange} />
+                </div>
+                <div className='row'>
+                    <div className="col-sm-6">
+                        <Input
+                            type='text'
+                            name='name'
+                            required={true}
+                            label='Product Name'
+                            value={product.name}
+                            onChange={handleInputChange} />
                     </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleOnSubmit} noValidate>
-                            <div className="col-sm-12">
-                                <div className="form-group">
-                                    <input id="name" name="name" type="text" placeholder="Product's name" className="form-control" required />
-                                    <div className="invalid-feedback">A product name is necesary.</div>
-                                </div>
-                                <div className="form-group">
-                                    <input id="price" name="price" type="text" placeholder="Product's price" className="form-control" required
-                                        onkeypress="return onlyNumber(event)" />
-                                    <div className="invalid-feedback">A product price is necesary</div>
-                                </div>
-                                <div className="form-group">
-                                    <input id="code" name="code" type="text" placeholder="Product's code" className="form-control" required />
-                                    <div className="invalid-feedback">A product code is necesary.</div>
-                                </div>
-                                <div className="form-group manage-stock fade">
-                                    <input id="stock" name="stock" type="number" min="0" placeholder="Product's stock" className="form-control" required />
-                                    <div className="invalid-feedback">A product stock is necesary.</div>
-                                </div>
-                                <div className="form-group manage-stock fade">
-                                    <input id="min_stock" name="min_stock" type="number" min="1" placeholder="Product's min stock" className="form-control" />
-                                </div>
-                                <div className="form-group manage-stock fade">
-                                    <input id="max_stock" name="max_stock" type="number" min="1" placeholder="Product's max stock" className="form-control" />
-                                </div>
-                            </div>
-                            <div className="form-check">
-                                <input id="manage_stock" name="manage_stock" type="checkbox" className="form-check-input"
-                                    onChange={handleChangeStockManage} />
-                                <label htmlFor="manage_stock" className="form-check-label">Manage product stock?</label>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={handleClickSubmit}>Save</button>
-                        <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Close</button>
+                    <div className="col-sm-6">
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='price'
+                            type='number'
+                            required={true}
+                            value={product.price}
+                            label='Product Price ($)'
+                            onChange={handleInputChange} />
                     </div>
                 </div>
-            </div>
-        </div>
+                <div className='row'>
+                    <div className='col-sm-6'>
+                        <RadioGroup legend='Unity' buttons={buttons} groupClass='manage-stock fade' />
+                    </div>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='stock'
+                            type='number'
+                            label='Stock'
+                            value={product.stock}
+                            groupClass='manage-stock fade'
+                            onChange={handleInputChange} />
+                    </div>
+                </div>
+                <div className='row'>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='min_stock'
+                            type='number'
+                            label='Min Stock'
+                            value={product.min_stock}
+                            groupClass='manage-stock fade'
+                            onChange={handleInputChange} />
+                    </div>
+                    <div className='col-sm-6'>
+                        <Input
+                            min={0}
+                            step={.50}
+                            name='max_stock'
+                            type='number'
+                            label='Max Stock'
+                            value={product.max_stock}
+                            onChange={handleInputChange}
+                            groupClass='manage-stock fade' />
+                    </div>
+                </div>
+                <CheckBox
+                    id='manage_stock_id'
+                    name='manage_stock'
+                    label='Manage product stock?'
+                    checked={product.manage_stock}
+                    onChange={handleChangeStockManage} />
+            </form>
+        </Modal>
     );
 };
 

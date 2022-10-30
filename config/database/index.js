@@ -1,4 +1,4 @@
-const { createConnection,   } = require('promise-mysql');
+const { createConnection } = require('promise-mysql');
 
 const startConnection = async () => {
     try {
@@ -26,6 +26,19 @@ const getProducts = async () => {
     }
 };
 
+const insertProduct = async (product) => {
+    try {
+        const conn = await startConnection();
+        await conn.query('INSERT INTO products SET ?', product);
+        conn.destroy();
+        return true;
+    } catch (error) {
+        console.log('Error inserting product: ', error);
+        return false;
+    }
+};
+
 module.exports = {
     getProducts,
+    insertProduct,
 }
