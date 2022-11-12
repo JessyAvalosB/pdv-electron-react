@@ -19,10 +19,28 @@ export const getProducts = async () => {
 
 export const createProduct = async (product) => {
     let response = null;
+    let url = product.hasOwnProperty('id') ? API.updateProduct : API.createProduct;
     await axios
-        .post(API.createProduct, product)
+        .post(url, product)
         .then(data => response = data)
         .catch(err => response = err.response);
     return response;
 };
 
+export const updateProduct = async (product) => {
+    let response = null;
+    await axios
+        .put(API.updateProduct, product)
+        .then(data => response = data)
+        .catch(err => response = err.response);
+    return response;
+}
+
+export const deleteProduct = async (id) => {
+    let response;
+    await axios
+        .delete(`${API.deleteProduct}/${id}`)
+        .then(data => response = data)
+        .catch(err => response = err.response);
+    return response;
+}

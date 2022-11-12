@@ -1,22 +1,25 @@
+import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { createProduct, getProducts } from '../../../axios requests/products';
-import { detachOnScan, initOnScan } from '../../../onScan';
-import { clearAlerts, setAlerts } from '../../../redux/actions/alerts';
-import { setProducts } from '../../../redux/actions/products';
 
-import { validate } from '../../../utils';
-import { alertTypes } from '../../Alerts/constants';
-import CheckBox from '../../UI/CheckBox';
-import Input from '../../UI/Input';
-import RadioGroup from '../../UI/RadioGroup';
+import { detachOnScan, initOnScan } from '../../../onScan';
+import { clearUpdateProduct, setProducts } from '../../../redux/actions/products';
+import { getUpdateProduct } from '../../../redux/selectors/products';
+import { clearAlerts, setAlerts } from '../../../redux/actions/alerts';
+import { createProduct, getProducts } from '../../../axios requests/products';
+
 import Modal from '../Modal';
+import Input from '../../UI/Input';
+import CheckBox from '../../UI/CheckBox';
+import { validate } from '../../../utils';
+import RadioGroup from '../../UI/RadioGroup';
+import { alertTypes } from '../../Alerts/constants';
 
 import './index.css';
 
 const AddProduct = () => {
     const inputCode = useRef();
     const dispatch = useDispatch();
+    const updateProduct = useSelector(getUpdateProduct);
     const [product, setProduct] = useState({
         name: '',
         price: '0',
@@ -39,6 +42,37 @@ const AddProduct = () => {
             inputCode.current.value = product.code;
         }
     }, [product.code]);
+
+    useEffect(() => {
+        if (updateProduct !== null) {
+            setProduct(updateProduct);
+            setUpdateProduct(updateProduct);
+        }
+    }, [updateProduct]);
+
+    const setUpdateProduct = (product) => {
+        if (product) {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach((input) => {
+                switch (input.type) {
+                    case 'text':
+                        input.value = product[input.name];
+                        break;
+                    case 'number':
+                        input.value = product[input.name];
+                        break;
+                    case 'radio':
+                        input.value = product[input.name];
+                        break;
+                    case 'checkbox':
+                        input.checked = product[input.name];
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+    }
 
     const handleScanned = (code) => {
         setProduct((prevSatate) => ({
@@ -73,7 +107,27 @@ const AddProduct = () => {
             input.classList.toggle('show', false);
             input.disabled = false;
         });
+        const inputsValues = document.querySelectorAll('input');
+        inputsValues.forEach((input) => {
+            switch (input.type) {
+                case 'text':
+                    input.value = '';
+                    break;
+                case 'number':
+                    input.value = '';
+                    break;
+                case 'radio':
+                    input.value = '1';
+                    break;
+                case 'checkbox':
+                    input.checked = false;
+                    break;
+                default:
+                    break;
+            }
+        });
         dispatch(clearAlerts());
+        dispatch(clearUpdateProduct());
     };
 
     const handleChangeStockManage = (event) => {
@@ -114,7 +168,7 @@ const AddProduct = () => {
                 case 409:
                     dispatch(setAlerts([{
                         typeAlert: alertTypes.danger,
-                        title: 'Error saving product.',
+                        title: 'Error saving/editing product.',
                         body: 'Verify that the product code has not been previously used.',
                     }]));
                     break;
@@ -150,7 +204,7 @@ const AddProduct = () => {
 
     return (
         <Modal
-            headerText='New Product'
+            headerText={updateProduct ? 'Update Product' : 'New Product'}
             handleCloseModal={handleCloseModal}
             toogleCloseModal={true}
             toggleShowFooter={true}
@@ -195,7 +249,7 @@ const AddProduct = () => {
                 </div>
                 <div className='row'>
                     <div className='col-sm-6'>
-                        <RadioGroup legend='Unity' buttons={buttons} groupClass='manage-stock fade' />
+                        <RadioGroup legend='Unity' buttons={buttons} groupclass='manage-stock fade' />
                     </div>
                     <div className='col-sm-6'>
                         <Input
@@ -205,7 +259,7 @@ const AddProduct = () => {
                             type='number'
                             label='Stock'
                             value={product.stock}
-                            groupClass='manage-stock fade'
+                            groupclass='manage-stock fade'
                             onChange={handleInputChange} />
                     </div>
                 </div>
@@ -218,7 +272,7 @@ const AddProduct = () => {
                             type='number'
                             label='Min Stock'
                             value={product.min_stock}
-                            groupClass='manage-stock fade'
+                            groupclass='manage-stock fade'
                             onChange={handleInputChange} />
                     </div>
                     <div className='col-sm-6'>
@@ -230,7 +284,7 @@ const AddProduct = () => {
                             label='Max Stock'
                             value={product.max_stock}
                             onChange={handleInputChange}
-                            groupClass='manage-stock fade' />
+                            groupclass='manage-stock fade' />
                     </div>
                 </div>
                 <CheckBox

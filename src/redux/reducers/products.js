@@ -2,6 +2,7 @@ import {productsTypes} from '../types';
 
 const initialState = {
     products: [],
+    updateProduct: null,
 };
 
 const products = (state = initialState, action) => {
@@ -10,6 +11,16 @@ const products = (state = initialState, action) => {
             return {
                 ...state,
                 products: action.payload
+            }
+        case productsTypes.UPDATE_PRODUCT:
+            return {
+                ...state,
+                updateProduct: action.payload
+            }
+        case productsTypes.CLEAR_UPDATE_PRODUCT:
+            return {
+                ...state,
+                updateProduct: action.payload
             }
         default:
             return state

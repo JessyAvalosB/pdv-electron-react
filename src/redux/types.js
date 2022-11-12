@@ -5,4 +5,6 @@ export const alertsTypes = {
 
 export const productsTypes = {
     SET_PRODUCTS: 'SET_PRODUCTS',
+    UPDATE_PRODUCT: 'UPDATE_PRODUCT',
+    CLEAR_UPDATE_PRODUCT: 'CLEAR_UPDATE_PRODUCT',
 };

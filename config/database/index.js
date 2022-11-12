@@ -17,7 +17,7 @@ const startConnection = async () => {
 const getProducts = async () => {
     try {
         const conn = await startConnection();
-        const products = await conn.query('SELECT * FROM products');
+        const products = await conn.query('SELECT id, name, price, manage_stock, stock, min_stock, max_stock, code, unity, created_at  FROM products');
         conn.destroy();
         return products;
     } catch (error) {
@@ -38,7 +38,42 @@ const insertProduct = async (product) => {
     }
 };
 
+const editProduct = async ({ name, price, manage_stock, stock, min_stock, max_stock, code, unity, id }) => {
+    try {
+        const conn = await startConnection();
+        await conn.query(`UPDATE products SET
+                            name = ?,
+                            price = ?,
+                            manage_stock = ?,
+                            stock = ?,
+                            min_stock = ?,
+                            max_stock = ?,
+                            code = ?,
+                            unity = ?
+                            WHERE id = ?`, [name, price, manage_stock, stock, min_stock, max_stock, code, unity, id]);
+        conn.destroy();
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+const deleteProduct = async (id) => {
+    try {
+        const conn = await startConnection();
+        await conn.query('DELETE FROM products WHERE id = ?', id);
+        conn.destroy();
+        return true;
+    } catch (error) {
+        console.log('Error deleting product: ', error);
+        return false;
+    }
+}
+
 module.exports = {
     getProducts,
     insertProduct,
+    editProduct,
+    deleteProduct,
 }
