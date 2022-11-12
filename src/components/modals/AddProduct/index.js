@@ -61,10 +61,8 @@ const AddProduct = () => {
                     case 'number':
                         input.value = product[input.name];
                         break;
-                    case 'radio':
-                        input.value = product[input.name];
-                        break;
                     case 'checkbox':
+                        product[input.name] && toggleShowManageStock(true);
                         input.checked = product[input.name];
                         break;
                     default:

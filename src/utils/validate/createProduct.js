@@ -49,6 +49,15 @@ const createProduct = (product) => {
             });
             flag = false;
         }
+
+        if ((product.stock > 0 && product.max_stock > 0) && (product.stock > product.max_stock)) {
+            alerts.push({
+                typeAlert: alertTypes.danger,
+                title: 'Max Stock',
+                body: 'The value of Stock must be less than Max Stock.',
+            });
+            flag = false;
+        }
     }
 
     return {
