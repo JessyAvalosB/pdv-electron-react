@@ -1,4 +1,4 @@
-import {productsTypes} from '../types';
+import { productsTypes } from '../types';
 
 export const setProducts = (products) => {
     return {
@@ -6,3 +6,17 @@ export const setProducts = (products) => {
         payload: products,
     }
 }
+
+export const updateProduct = (product) => {
+    return {
+        type: productsTypes.UPDATE_PRODUCT,
+        payload: product,
+    }
+};
+
+export const clearUpdateProduct = () => {
+    return {
+        type: productsTypes.CLEAR_UPDATE_PRODUCT,
+        payload: null,
+    };
+};
