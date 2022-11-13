@@ -14,10 +14,22 @@ const startConnection = async () => {
     }
 };
 
-const getProducts = async () => {
+const getProducts = async (search = null) => {
     try {
         const conn = await startConnection();
-        const products = await conn.query('SELECT id, name, price, manage_stock, stock, min_stock, max_stock, code, unity, created_at  FROM products');
+        const query = `SELECT
+                        id,
+                        name,
+                        price,
+                        manage_stock,
+                        stock,
+                        min_stock,
+                        max_stock,
+                        code,
+                        unity,
+                        created_at
+                        FROM products ${search ? `WHERE LOCATE('${search}', name) > 0` : ''};`;
+        const products = await conn.query(query);
         conn.destroy();
         return products;
     } catch (error) {

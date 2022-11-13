@@ -4,12 +4,22 @@ const productQuerys = require('../../config/database/index');
 
 router.get('/', async (req, res) => {
     const products = await productQuerys.getProducts();
-    // const sales = await db.query('SELECT * FROM sales');
-
     res
         .status(200)
         .send({
             response: 'Get products done.',
+            products,
+            // sales,
+        });
+});
+
+router.post('/search', async (req, res) => {
+    const { search } = req.body;
+    const products = await productQuerys.getProducts(search);
+    res
+        .status(200)
+        .send({
+            response: 'Get filter products done.',
             products,
             // sales,
         });

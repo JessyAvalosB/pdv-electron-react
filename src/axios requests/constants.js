@@ -5,5 +5,6 @@ export const apiProducts = {
     getAllProducts: productsURL,
     createProduct: `${productsURL}/add`,
     updateProduct: `${productsURL}/edit`,
-    deleteProduct: `${productsURL}/delete`
+    deleteProduct: `${productsURL}/delete`,
+    searchProduct: `${productsURL}/search`,
 }
