@@ -2,9 +2,9 @@ import React from 'react';
 
 import './index.css';
 
-const ModalContainer = ({ children }) => {
+const ModalContainer = ({ id, children }) => {
     return (
-        <div className="modal fade" id="add-product-modal">
+        <div className="modal fade" id={id}>
             <div className="modal-dialog" role="document">
                 <div className="modal-content">
                     {children}

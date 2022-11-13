@@ -8,9 +8,9 @@ import ModalFooter from './ModalFooter';
 import ModalHeader from './ModalHeader';
 
 
-const Modal = ({ children, toggleShowFooter = false, ...rest }) => {
+const Modal = ({ id, children, toggleShowFooter = false, ...rest }) => {
     return (
-        <ModalContainer>
+        <ModalContainer id={id}>
             <ModalHeader {...rest} />
             <ModalContent>
                 {children}

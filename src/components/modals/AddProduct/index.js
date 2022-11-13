@@ -202,6 +202,7 @@ const AddProduct = () => {
 
     return (
         <Modal
+            id='add-product-modal'
             headerText={updateProduct ? 'Update Product' : 'New Product'}
             handleCloseModal={handleCloseModal}
             toogleCloseModal={true}

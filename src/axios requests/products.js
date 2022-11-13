@@ -17,6 +17,22 @@ export const getProducts = async () => {
     return products;
 }
 
+export const getFilterProducts = async (search) => {
+    let products = [];
+    await axios
+        .post(API.searchProduct, { search })
+        .then(data => {
+            if (data.status === 200) {
+                products = data.data.products;
+            }
+        })
+        .catch(err => {
+            // TODO: handle error
+            console.log(err);
+        });
+    return products;
+};
+
 export const createProduct = async (product) => {
     let response = null;
     let url = product.hasOwnProperty('id') ? API.updateProduct : API.createProduct;

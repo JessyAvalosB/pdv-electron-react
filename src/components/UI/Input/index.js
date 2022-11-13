@@ -5,10 +5,12 @@ const Input = React.forwardRef(({ name, required = false, value = '', invalidTex
     return (
         <div className={`form-group ${rest.groupclass}`}>
             {rest.label && <Label value={value} {...rest} />}
-            <input name={name}
-                className="form-control"
-                required={required}
+            <input
                 ref={ref}
+                name={name}
+                value={value}
+                required={required}
+                className="form-control"
                 {...rest} />
             <div className="invalid-feedback">{invalidText}</div>
         </div>
