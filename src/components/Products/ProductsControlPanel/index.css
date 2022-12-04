@@ -1,0 +1,27 @@
+.table-control-panel {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+.table-control-panel div {
+    margin: 0;
+}
+
+.table-control-panel div input:focus {
+    box-shadow: none;
+}
+
+.table-control-panel button {
+    max-height: 50px;
+    margin: 0 15px 0 0;
+}
+
+.table-control-panel button:focus {
+    box-shadow: none;
+}
+
+.table-control-panel button:last-of-type {
+    margin: 0;
+}

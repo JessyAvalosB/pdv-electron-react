@@ -1,18 +1,18 @@
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import './index.css';
 
-import Input from "../UI/Input";
 import Button from "../UI/Button";
 import AddProduct from "../modals/AddProduct";
 import AlertContainer from "../Alerts/AlertContainer";
+import ProductsControlPanel from "./ProductsControlPanel";
 
 import { alertTypes } from "../Alerts/constants";
 import { setAlerts } from "../../redux/actions/alerts";
 import { setProducts, updateProduct } from "../../redux/actions/products";
-import { deleteProduct, getFilterProducts, getProducts } from "../../axios requests/products.js";
+import { deleteProduct, getProducts } from "../../axios requests/products.js";
 import { getProducts as getProductsSelector } from "../../redux/selectors/products";
 import { getAlerts as getAlertsSelectors } from "../../redux/selectors/alerts";
 
@@ -20,8 +20,6 @@ const Products = () => {
     const alerts = useSelector(getAlertsSelectors)
     const products = useSelector(getProductsSelector);
     const dispatch = useDispatch();
-
-    const [searchProduct, setSearchProduct] = useState('');
 
     useEffect(() => {
         let isSubscribed = true;
@@ -32,11 +30,6 @@ const Products = () => {
     }, []);
 
     const setProductsData = async () => dispatch(setProducts(await getProducts()));
-
-    const handleClickAddProduct = () => {
-        const modal = document.querySelector('#add-product-modal');
-        modal.classList.add('show');
-    };
 
     const handleEditProduct = (product) => {
         dispatch(updateProduct(product));
@@ -61,49 +54,9 @@ const Products = () => {
                 break;
         }
     };
-
-    const handleChangeSearchProduct = (event) => {
-        const { value } = event.target;
-        setSearchProduct(value);
-    };
-
-    const handleSubmitSearchProduct = async () => {
-        dispatch(setProducts(await getFilterProducts(searchProduct)));
-    };
-
-    const handleClearSearchProduct = async () => {
-        setSearchProduct('');
-        dispatch(setProducts(await getProducts()));
-    };
-
     return (
         <div className="container p-4">
-            <div className="table-control-panel">
-                <Input
-                    toggleLabel={true}
-                    value={searchProduct}
-                    label='Search Product'
-                    onChange={handleChangeSearchProduct} />
-                <Button
-                    type='button'
-                    btnClass='outline-primary'
-                    onClick={handleSubmitSearchProduct}>
-                    Search
-                </Button>
-                <Button
-                    type='button'
-                    disabled={searchProduct.length === 0 ? true : false}
-                    btnClass='primary'
-                    onClick={handleClearSearchProduct}>
-                    Clear Search
-                </Button>
-                <Button
-                    type="button"
-                    btnClass="primary"
-                    onClick={handleClickAddProduct}>
-                    +
-                </Button>
-            </div>
+            <ProductsControlPanel />
             <table className="table table-hover table-dark">
                 <thead>
                     <tr>

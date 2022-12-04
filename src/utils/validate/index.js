@@ -1,7 +1,9 @@
 import createProduct from './createProduct';
+import { isNumeric } from './isNumeric';
 
 const validate = {
-    createProduct
+    createProduct,
+    isNumeric,
 };
 
 export default validate;
