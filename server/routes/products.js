@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const productQuerys = require('../../config/database/index');
+const productQuerys = require('../../config/database/products');
 
 router.get('/', async (req, res) => {
     const products = await productQuerys.getProducts();
