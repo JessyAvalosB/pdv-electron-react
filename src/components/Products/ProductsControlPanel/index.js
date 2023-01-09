@@ -3,6 +3,7 @@ import React from 'react';
 import './index.css';
 
 import Button from '../../UI/Button';
+import Pagination from '../../Pagination';
 import SearchProduct from '../SearchProduct';
 
 const ProductsControlPanel = () => {
@@ -12,6 +13,7 @@ const ProductsControlPanel = () => {
     };
     return (
         <div className="table-control-panel">
+            <Pagination />
             <SearchProduct />
             <Button
                 type="button"

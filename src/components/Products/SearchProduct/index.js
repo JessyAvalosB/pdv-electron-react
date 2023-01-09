@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import './index.css';
 
@@ -8,10 +8,13 @@ import Button from '../../UI/Button';
 
 import { setProducts } from '../../../redux/actions/products';
 import { getFilterProducts, getProducts } from '../../../axios requests/products';
+import { getPaginationConfig } from '../../../redux/selectors/pagination';
+import { setPage, setTotalItems } from '../../../redux/actions/pagination';
 
 const SearchProduct = () => {
-    const dispatch = useDispatch();
     const [searchProduct, setSearchProduct] = useState('');
+    const { page, limit } = useSelector(getPaginationConfig);
+    const dispatch = useDispatch();
 
     const handleChangeSearchProduct = (event) => {
         const { value } = event.target;
@@ -24,7 +27,10 @@ const SearchProduct = () => {
 
     const handleClearSearchProduct = async () => {
         setSearchProduct('');
-        dispatch(setProducts(await getProducts()));
+        dispatch(setPage(1));
+        const { results, totalItems } = await getProducts({ page, limit });
+        dispatch(setProducts(results));
+        dispatch(setTotalItems(totalItems));
     };
     return (
         <>

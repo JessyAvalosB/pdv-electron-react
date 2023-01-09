@@ -4,7 +4,7 @@ const initialState = {
     alerts: [],
 }
 
-const alerts = (state = initialState, action) => {
+const alertReducer = (state = initialState, action) => {
     switch (action.type) {
         case alertsTypes.SET_ALERTS:
             return {
@@ -21,4 +21,4 @@ const alerts = (state = initialState, action) => {
     }
 }
 
-export default alerts;
+export default alertReducer;

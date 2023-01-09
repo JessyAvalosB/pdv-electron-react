@@ -1,10 +1,12 @@
 import { combineReducers } from "redux";
-import products from './reducers/products';
-import alerts from "./reducers/alerts";
+import productReducer from './reducers/products';
+import alertReducer from "./reducers/alerts";
+import paginationReducer from "./reducers/pagination";
 
 const rootReducer = combineReducers({
-    products: products,
-    alerts: alerts,
+    products: productReducer,
+    alerts: alertReducer,
+    pagination: paginationReducer,
 });
 
 export default rootReducer;

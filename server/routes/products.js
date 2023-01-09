@@ -3,13 +3,26 @@ const router = require('express').Router();
 const productQuerys = require('../../config/database/products');
 
 router.get('/', async (req, res) => {
+    const { page, limit } = req.query;
     const products = await productQuerys.getProducts();
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    let result = {};
+    result.totalItems = products.length;
+    result.prev = null;
+    result.next = null;
+    if (endIndex > products.length) {
+        result.next = page + 1;
+    }
+    if (startIndex > 0) {
+        result.prev = page - 1;
+    }
+    result.results = products.slice(startIndex, endIndex);
     res
         .status(200)
         .send({
             response: 'Get products done.',
-            products,
-            // sales,
+            products: result,
         });
 });
 

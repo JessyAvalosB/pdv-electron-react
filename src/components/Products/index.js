@@ -1,5 +1,5 @@
+import React from "react";
 import moment from "moment";
-import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import './index.css';
@@ -13,23 +13,20 @@ import { alertTypes } from "../Alerts/constants";
 import { setAlerts } from "../../redux/actions/alerts";
 import { setProducts, updateProduct } from "../../redux/actions/products";
 import { deleteProduct, getProducts } from "../../axios requests/products.js";
-import { getProducts as getProductsSelector } from "../../redux/selectors/products";
 import { getAlerts as getAlertsSelectors } from "../../redux/selectors/alerts";
+import { getProducts as getProductsSelector } from "../../redux/selectors/products";
+
+import { useFetchProducts } from "../../hooks/useFetchProducts";
+import { getPaginationConfig } from "../../redux/selectors/pagination";
+import { setPage, setTotalItems } from "../../redux/actions/pagination";
 
 const Products = () => {
     const alerts = useSelector(getAlertsSelectors)
     const products = useSelector(getProductsSelector);
+    const { page, limit } = useSelector(getPaginationConfig);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        let isSubscribed = true;
-        if (isSubscribed) {
-            setProductsData();
-        }
-        return () => isSubscribed = false;
-    }, []);
-
-    const setProductsData = async () => dispatch(setProducts(await getProducts()));
+    useFetchProducts();
 
     const handleEditProduct = (product) => {
         dispatch(updateProduct(product));
@@ -41,7 +38,10 @@ const Products = () => {
         const res = await deleteProduct(id);
         switch (res.status) {
             case 200:
-                dispatch(setProducts(await getProducts()));
+                dispatch(setPage(1));
+                const { results, totalItems } = await getProducts({ page, limit });
+                dispatch(setProducts(results));
+                dispatch(setTotalItems(totalItems));
                 break;
             case 409:
                 dispatch(setAlerts([{

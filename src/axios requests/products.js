@@ -1,13 +1,14 @@
 import axios from 'axios';
+
 import { apiProducts as API } from './constants';
 
-export const getProducts = async () => {
+export const getProducts = async ({ page, limit = 5}) => {
     let products = [];
     await axios
-        .get(API.getAllProducts)
-        .then(data => {
-            if (data.status === 200) {
-                products = data.data.products;
+        .get(`${API.getAllProducts}?page=${page}&limit=${limit}`)
+        .then(response => {
+            if (response.status === 200) {
+                products = response.data.products;
             }
         })
         .catch(err => {
