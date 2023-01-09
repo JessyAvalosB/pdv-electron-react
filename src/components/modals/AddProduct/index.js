@@ -2,10 +2,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { detachOnScan, initOnScan } from '../../../onScan';
-import { clearUpdateProduct, setProducts } from '../../../redux/actions/products';
 import { getUpdateProduct } from '../../../redux/selectors/products';
 import { clearAlerts, setAlerts } from '../../../redux/actions/alerts';
 import { createProduct, getProducts } from '../../../axios requests/products';
+import { clearUpdateProduct, setProducts } from '../../../redux/actions/products';
 
 import Modal from '../Modal';
 import Input from '../../UI/Input';
@@ -16,10 +16,14 @@ import { alertTypes } from '../../Alerts/constants';
 
 import './index.css';
 
+import { setPage, setTotalItems } from '../../../redux/actions/pagination';
+import { getPaginationConfig } from '../../../redux/selectors/pagination';
+
 const AddProduct = () => {
     const inputCode = useRef();
     const dispatch = useDispatch();
     const updateProduct = useSelector(getUpdateProduct);
+    const { page, limit } = useSelector(getPaginationConfig);
     const [product, setProduct] = useState({
         name: '',
         price: '0',
@@ -160,7 +164,10 @@ const AddProduct = () => {
             const res = await createProduct(product);
             switch (res.status) {
                 case 201:
-                    dispatch(setProducts(await getProducts()));
+                    dispatch(setPage(1));
+                    const { results, totalItems } = await getProducts({ page, limit });
+                    dispatch(setProducts(results));
+                    dispatch(setTotalItems(totalItems));
                     handleCloseModal();
                     break;
                 case 409:

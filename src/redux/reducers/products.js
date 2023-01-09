@@ -5,12 +5,12 @@ const initialState = {
     updateProduct: null,
 };
 
-const products = (state = initialState, action) => {
+const productReducer = (state = initialState, action) => {
     switch (action.type) {
         case productsTypes.SET_PRODUCTS:
             return {
                 ...state,
-                products: action.payload
+                products: action.payload,
             }
         case productsTypes.UPDATE_PRODUCT:
             return {
@@ -27,4 +27,4 @@ const products = (state = initialState, action) => {
     }
 };
 
-export default products;
+export default productReducer;
